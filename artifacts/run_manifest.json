@@ -1,0 +1,109 @@
+{
+  "base_model_id": "Qwen/Qwen2.5-3B-Instruct",
+  "commit_hash": "c7c9b9b5431b9d225cdd29ab5ad0896c787df033",
+  "config": {
+    "datasets": {
+      "empathetic_dialogues_id": "Adapting/empathetic_dialogues_v2",
+      "esconv_id": "thu-coai/esconv",
+      "go_emotions_id": "google-research-datasets/go_emotions",
+      "max_eval_examples": 64,
+      "max_train_examples": 5000,
+      "mixture_alpha": 0.5
+    },
+    "dpo": {
+      "beta": 0.1,
+      "enabled": false,
+      "lambda_violation": 0.0
+    },
+    "eval": {
+      "eqbench_enabled": true,
+      "qualitative_prompts_path": "prompts/qualitative_prompts.jsonl",
+      "redteam_prompts_path": "prompts/redteam_prompts.jsonl"
+    },
+    "generation": {
+      "max_new_tokens": 192,
+      "style_tokens": [],
+      "temperature": 0.7,
+      "top_p": 0.9
+    },
+    "label_policy": {
+      "use_ed_v2_emotion_for_head": false,
+      "use_esconv_emotion_type_for_head": false,
+      "use_goemotions_single_label_only": true
+    },
+    "lora": {
+      "alpha": 32,
+      "dropout": 0.05,
+      "r": 16,
+      "target_modules": []
+    },
+    "losses": {
+      "lambda_emo": 0.2,
+      "lambda_lm": 1.0,
+      "lambda_safe": 0.0,
+      "lambda_strat": 0.2,
+      "lambda_val": 0.0
+    },
+    "model": {
+      "base_model_id": "Qwen/Qwen2.5-3B-Instruct",
+      "max_seq_len": 1024,
+      "tokenizer_id": null
+    },
+    "paths": {
+      "artifacts_dir": "E:\\GITHUB\\VIbeAI Assignment\\artifacts",
+      "hf_cache_dir": "E:\\GITHUB\\VIbeAI Assignment\\.hf_cache",
+      "project_root": "E:\\GITHUB\\VIbeAI Assignment"
+    },
+    "quant": {
+      "bnb_4bit_compute_dtype": "float16",
+      "bnb_4bit_quant_type": "nf4",
+      "bnb_4bit_use_double_quant": true,
+      "load_in_4bit": true
+    },
+    "safety": {
+      "enabled": false,
+      "teacher_model_id": "",
+      "teacher_subset_ratio": 0.05,
+      "temperature_tau": 2.0
+    },
+    "train": {
+      "eval_every_steps": null,
+      "eval_steps": 60,
+      "gradient_accumulation_steps": 8,
+      "gradient_checkpointing": true,
+      "learning_rate": 0.0002,
+      "log_every_steps": null,
+      "logging_steps": 5,
+      "max_grad_norm": 1.0,
+      "max_train_steps": 60,
+      "num_train_epochs": 1.0,
+      "output_dir": null,
+      "per_device_eval_batch_size": 1,
+      "per_device_train_batch_size": 1,
+      "save_steps": 60,
+      "save_total_limit": 2,
+      "seed": 7,
+      "warmup_ratio": 0.03,
+      "weight_decay": 0.0
+    }
+  },
+  "device": "cuda",
+  "eval_every_steps": 60,
+  "learning_rate": 0.0002,
+  "log_every_steps": 5,
+  "loss_weights": {
+    "lambda_emo": 0.2,
+    "lambda_lm": 1.0,
+    "lambda_strat": 0.2
+  },
+  "max_train_steps": 60,
+  "mixture_alpha": 0.5,
+  "peft": "qlora",
+  "run_id": "20260128_224850",
+  "save_steps": 60,
+  "seed": 7,
+  "timestamp": "2026-01-28T22:48:50",
+  "warmup_ratio": 0.03,
+  "warmup_steps": 1,
+  "weight_decay": 0.0
+}

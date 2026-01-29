@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+.env
+
+# Hugging Face caches / artifacts
+.hf_cache/
+
+# Training artifacts (large files; not suitable for GitHub without LFS)
+artifacts/checkpoints/
+artifacts/checkpoints_*/
+artifacts/**/adapter_model.safetensors
+artifacts/**/adapter_model.bin
+
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+#Docs Ignored
+Problem Statement.pdf
+Projects_requirements_specifications.md
+SUBMISSION.md

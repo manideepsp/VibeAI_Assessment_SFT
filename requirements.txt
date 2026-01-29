@@ -1,0 +1,11 @@
+# Core runtime deps (install torch separately for your hardware/CUDA)
+transformers
+datasets
+peft
+accelerate
+tqdm
+python-dotenv
+matplotlib
+
+# bitsandbytes is required only for 4-bit (QLoRA) and typically needs CUDA
+bitsandbytes

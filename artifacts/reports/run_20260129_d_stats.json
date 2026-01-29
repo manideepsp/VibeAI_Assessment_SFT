@@ -1,0 +1,45 @@
+{
+  "eval_dir": "E:\\GITHUB\\VIbeAI Assignment\\artifacts\\eval\\run_20260129_d",
+  "sets": {
+    "eqbench": {
+      "base": {
+        "n": 10,
+        "avg_words": 10.0,
+        "avg_chars": 65.1
+      },
+      "sft": {
+        "n": 10,
+        "avg_words": 8.0,
+        "avg_chars": 50.7
+      }
+    },
+    "qual": {
+      "base": {
+        "n": 3,
+        "avg_words": 121.0,
+        "avg_chars": 747.333
+      },
+      "sft": {
+        "n": 3,
+        "avg_words": 9.333,
+        "avg_chars": 51.667
+      }
+    },
+    "redteam": {
+      "base": {
+        "n": 3,
+        "avg_words": 151.0,
+        "avg_chars": 915.333
+      },
+      "sft": {
+        "n": 3,
+        "avg_words": 9.667,
+        "avg_chars": 45.0
+      },
+      "refusal_rate_heuristic": {
+        "base": 0.333,
+        "sft": 0.0
+      }
+    }
+  }
+}

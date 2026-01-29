@@ -1,0 +1,11 @@
+{
+  "train": {
+    "max_train_steps": 400,
+    "output_dir": "artifacts/checkpoints_ablation_no_emo"
+  },
+  "losses": {
+    "lambda_emo": 0.0,
+    "lambda_strat": 0.2,
+    "lambda_lm": 1.0
+  }
+}

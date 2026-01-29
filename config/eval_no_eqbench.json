@@ -1,0 +1,27 @@
+{
+  "model": {
+    "base_model_id": "Qwen/Qwen2.5-3B-Instruct",
+    "tokenizer_id": null,
+    "max_seq_len": 1024
+  },
+  "quant": {
+    "load_in_4bit": true,
+    "bnb_4bit_quant_type": "nf4",
+    "bnb_4bit_use_double_quant": true,
+    "bnb_4bit_compute_dtype": "float16"
+  },
+  "train": {
+    "seed": 7
+  },
+  "generation": {
+    "max_new_tokens": 192,
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "style_tokens": []
+  },
+  "eval": {
+    "eqbench_enabled": false,
+    "qualitative_prompts_path": "prompts/qualitative_prompts.jsonl",
+    "redteam_prompts_path": "prompts/redteam_prompts.jsonl"
+  }
+}
