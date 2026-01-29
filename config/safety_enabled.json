@@ -1,4 +1,5 @@
 {
+  "_comment": "Multi-objective SFT config with Safety KL enabled (requires higher VRAM)",
   "model": {
     "base_model_id": "Qwen/Qwen2.5-3B-Instruct",
     "tokenizer_id": null,
@@ -23,31 +24,33 @@
   },
   "train": {
     "seed": 7,
-    "max_train_steps": 60,
+    "max_train_steps": 200,
     "learning_rate": 0.0002,
     "warmup_ratio": 0.03,
     "per_device_train_batch_size": 1,
     "gradient_accumulation_steps": 8,
     "per_device_eval_batch_size": 1,
-    "logging_steps": 5,
-    "eval_steps": 60,
-    "save_steps": 60,
+    "logging_steps": 10,
+    "eval_steps": 100,
+    "save_steps": 100,
     "max_grad_norm": 1.0,
     "gradient_checkpointing": true,
     "output_dir": null
   },
   "losses": {
+    "_comment": "Multi-objective loss: L = λ_LM*NLL + λ_emo*Emo + λ_strat*Strat + λ_val*Val + λ_safe*Safe",
     "lambda_lm": 1.0,
     "lambda_emo": 0.2,
     "lambda_strat": 0.2,
     "lambda_val": 0.0,
-    "lambda_safe": 0.0
+    "lambda_safe": 0.1
   },
   "safety": {
-    "enabled": false,
+    "_comment": "Safety teacher KL: L_safe = KL(σ(z_T/τ) || σ(z_θ/τ))",
+    "enabled": true,
     "teacher_model_id": "",
     "temperature_tau": 2.0,
-    "teacher_subset_ratio": 0.05
+    "teacher_subset_ratio": 0.1
   },
   "dpo": {
     "enabled": false,

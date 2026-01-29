@@ -19,6 +19,7 @@ from dataset import CanonicalDatasets, IGNORE_INDEX, load_canonical_datasets
 from heads import AuxHeads, masked_cross_entropy
 from mixture import TemperatureMixtureSampler
 from model import LoadedModel, infer_device, load_model_and_tokenizer
+from safety_teacher import SafetyTeacher, build_safety_teacher
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,7 @@ class TrainStats:
     lm_loss: float
     emo_loss: float
     strat_loss: float
+    safe_loss: float
     total_loss: float
     tokens: int
     seconds: float
@@ -165,6 +167,14 @@ def _write_run_manifest(cfg: AppConfig, *, log_every: int, eval_every: int, warm
             "lambda_lm": float(cfg.losses.lambda_lm),
             "lambda_emo": float(cfg.losses.lambda_emo),
             "lambda_strat": float(cfg.losses.lambda_strat),
+            "lambda_val": float(cfg.losses.lambda_val),
+            "lambda_safe": float(cfg.losses.lambda_safe),
+        },
+        "safety_teacher": {
+            "enabled": bool(cfg.safety.enabled),
+            "teacher_model_id": cfg.safety.teacher_model_id,
+            "temperature_tau": float(cfg.safety.temperature_tau),
+            "teacher_subset_ratio": float(cfg.safety.teacher_subset_ratio),
         },
         "config": cfg.to_dict(),
     }
@@ -298,6 +308,18 @@ def train(cfg: AppConfig) -> None:
         dropout=0.1,
     ).to(device=device, dtype=base_dtype)
 
+    # Initialize safety teacher for KL regularization
+    safety_teacher: SafetyTeacher = build_safety_teacher(
+        cfg,
+        student_model=model,
+        tokenizer=tokenizer,
+        device=device,
+    )
+    if safety_teacher.is_enabled:
+        print(f"[Safety] Teacher KL enabled, τ={cfg.safety.temperature_tau}, λ_safe={cfg.losses.lambda_safe}")
+    else:
+        print("[Safety] Teacher KL disabled")
+
     trainable, total = _trainable_params_summary(model)
     print(f"Trainable params: {trainable/1e6:.2f}M / {total/1e6:.2f}M ({100.0*trainable/max(1,total):.4f}%)")
 
@@ -373,15 +395,42 @@ def train(cfg: AppConfig) -> None:
 
             emo_loss = torch.tensor(0.0, device=device)
             strat_loss = torch.tensor(0.0, device=device)
+            safe_loss = torch.tensor(0.0, device=device)
+            
             if aux.emotion is not None:
                 emo_loss = masked_cross_entropy(aux.emotion, batch["emotion_label"], ignore_index=IGNORE_INDEX)
             if aux.strategy is not None:
                 strat_loss = masked_cross_entropy(aux.strategy, batch["strategy_label"], ignore_index=IGNORE_INDEX)
+            
+            # Compute safety KL loss if enabled and selected for this step
+            if safety_teacher.is_enabled and safety_teacher.should_apply_this_step(step):
+                try:
+                    safety_out = safety_teacher.compute_safety_kl(
+                        student_model=model,
+                        input_ids=batch["input_ids"],
+                        attention_mask=batch["attention_mask"],
+                        labels=batch["labels"],
+                    )
+                    safe_loss = safety_out.loss
+                except RuntimeError as e:
+                    # Handle OOM gracefully - skip safety loss this step
+                    if "out of memory" in str(e).lower():
+                        print(f"[Safety] OOM at step {step}, skipping safety KL")
+                        gc.collect()
+                        if device.type == "cuda":
+                            torch.cuda.empty_cache()
+                        safe_loss = torch.tensor(0.0, device=device)
+                    else:
+                        raise
 
+            # Multi-objective SFT loss:
+            # L_SFT = λ_LM * L_NLL + λ_emo * L_emo + λ_strat * L_strat + λ_val * L_val + λ_safe * L_safe
+            # Note: L_val (value alignment) not yet implemented, set lambda_val=0
             total_loss = (
                 cfg.losses.lambda_lm * lm_loss
                 + cfg.losses.lambda_emo * emo_loss
                 + cfg.losses.lambda_strat * strat_loss
+                + cfg.losses.lambda_safe * safe_loss
             )
 
         if use_amp:
@@ -420,6 +469,7 @@ def train(cfg: AppConfig) -> None:
                     lm_loss=float(lm_loss.detach().cpu()),
                     emo_loss=float(emo_loss.detach().cpu()),
                     strat_loss=float(strat_loss.detach().cpu()),
+                    safe_loss=float(safe_loss.detach().cpu()),
                     total_loss=float(total_loss.detach().cpu()),
                     tokens=running_tokens,
                     seconds=dt,
@@ -427,7 +477,7 @@ def train(cfg: AppConfig) -> None:
                 toks_per_s = stats.tokens / max(1e-6, stats.seconds)
                 print(
                     f"step={stats.step} total={stats.total_loss:.4f} lm={stats.lm_loss:.4f} "
-                    f"emo={stats.emo_loss:.4f} strat={stats.strat_loss:.4f} "
+                    f"emo={stats.emo_loss:.4f} strat={stats.strat_loss:.4f} safe={stats.safe_loss:.4f} "
                     f"tokens={stats.tokens} tok/s={toks_per_s:.1f}"
                 )
 
@@ -446,6 +496,7 @@ def train(cfg: AppConfig) -> None:
                         "lm_loss": stats.lm_loss,
                         "emotion_loss": stats.emo_loss,
                         "strategy_loss": stats.strat_loss,
+                        "safety_loss": stats.safe_loss,
                         "tokens": stats.tokens,
                         "seconds": stats.seconds,
                         "tokens_per_s": toks_per_s,

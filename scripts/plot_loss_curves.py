@@ -16,7 +16,7 @@ def main() -> None:
 
     # Keep only scalar metric rows (support both legacy and current key names)
     def _is_metric_row(r: dict) -> bool:
-        return any(k in r for k in ("loss", "total_loss", "lm_loss", "emotion_loss", "strategy_loss")) and "step" in r
+        return any(k in r for k in ("loss", "total_loss", "lm_loss", "emotion_loss", "strategy_loss", "safety_loss")) and "step" in r
 
     rows = [r for r in rows if isinstance(r, dict) and _is_metric_row(r)]
     if not rows:
@@ -36,6 +36,7 @@ def main() -> None:
     lm = [_get_float(r, "lm_loss") for r in rows]
     emo = [_get_float(r, "emotion_loss", "emo_loss") for r in rows]
     strat = [_get_float(r, "strategy_loss", "strat_loss") for r in rows]
+    safe = [_get_float(r, "safety_loss", "safe_loss") for r in rows]
 
     try:
         import matplotlib.pyplot as plt
@@ -50,9 +51,12 @@ def main() -> None:
     plt.plot(steps, lm, label="lm")
     plt.plot(steps, emo, label="emo")
     plt.plot(steps, strat, label="strat")
+    # Only plot safety loss if any non-zero values
+    if any(s > 0 and s == s for s in safe):  # s == s filters out NaN
+        plt.plot(steps, safe, label="safe")
     plt.xlabel("step")
     plt.ylabel("loss")
-    plt.title("Training losses")
+    plt.title("Multi-Objective Training Losses")
     plt.legend()
     plt.tight_layout()
 

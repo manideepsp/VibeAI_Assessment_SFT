@@ -36,6 +36,79 @@
 - **Emotion classification head**: predicts user emotion from hidden states
 - **Support-strategy classification head**: predicts next assistant strategy
 
+### Multi-Objective Loss Formulation
+
+The full SFT objective combines four (or five with safety) loss terms:
+
+$$L_{\text{SFT}} = \lambda_{\text{LM}} L_{\text{NLL}} + \lambda_{\text{emo}} L_{\text{emo}} + \lambda_{\text{strat}} L_{\text{strat}} + \lambda_{\text{safe}} L_{\text{safe}}$$
+
+| Loss Term | Description | Default λ |
+|-----------|-------------|-----------|
+| $L_{\text{NLL}}$ | Causal LM cross-entropy | 1.0 |
+| $L_{\text{emo}}$ | Emotion classification CE | 0.2 |
+| $L_{\text{strat}}$ | Strategy classification CE | 0.2 |
+| $L_{\text{safe}}$ | Safety Teacher KL (when enabled) | 0.1 |
+
+### Safety Teacher KL Regularization
+
+Implemented in `safety_teacher.py`. Distills from a rules-prompted safety teacher:
+
+$$L_{\text{safe}} = \text{KL}\left( \sigma\left(\frac{z_T}{\tau}\right) \,\|\, \sigma\left(\frac{z_\theta}{\tau}\right) \right)$$
+
+Where:
+- $z_T$ = teacher logits (from frozen safety-prompted model)
+- $z_\theta$ = student logits (from training model)
+- $\tau$ = temperature (default 2.0)
+- $\sigma(\cdot)$ = softmax function
+
+**Implementation Modes**:
+1. **Full Mode**: Separate teacher model (requires 2x VRAM)
+2. **Self-Distillation Mode**: Uses frozen copy of student as teacher (for low-VRAM GPUs like GTX 1650)
+3. **Offline Mode**: Pre-computed teacher logits from disk
+
+**VRAM Optimization**: Uses stochastic subset ratio (`teacher_subset_ratio: 0.05`) to apply KL on only 5% of batches, reducing memory pressure.
+
+### Decoding Policy (Inference)
+
+Implemented in `decoding_policy.py`. Uses style tokens and a two-step controller:
+
+#### Style Tokens
+Short style tokens control response tone and persona:
+```
+<tone:warm><persona:best friend>
+```
+
+Supported tones: `warm`, `gentle`, `supportive`, `calm`, `encouraging`, `empathetic`
+Supported personas: `best friend`, `counselor`, `mentor`, `peer`, `companion`
+
+#### Two-Step Controller
+
+1. **Step 1 - Internal Reflection**: Model generates a hidden one-line reflection (not shown to user)
+2. **Step 2 - Validation**: Ensures response includes:
+   - (i) **Acknowledgment** of user's situation
+   - (ii) **Feeling-naming** to validate emotions
+   - (iii) **Gentle follow-up question** to invite further sharing
+
+#### Safety Re-Decode
+If a safety rule is triggered (detected harmful content in user input):
+- Re-decode with **stronger penalties on directive/advice tokens**
+- Tokens like "you should", "you need to", "just try" are penalized
+- Empathetic tokens like "understand", "feel", "how" are boosted
+
+```python
+from decoding_policy import create_controller, StyleConfig
+
+controller = create_controller(
+    model, tokenizer,
+    tone="warm",
+    persona="best friend",
+    directive_penalty=2.0,  # Penalty when safety triggered
+    empathy_boost=1.0,
+)
+result = controller.generate("I'm feeling really down today")
+# result.response, result.reflection, result.safety_triggered
+```
+
 ---
 
 ## 3. Problems Identified
@@ -148,27 +221,53 @@ Response: Remorseful: 3
           Annoyed: 7
 ```
 
+#### EQ-Bench Emotional Intelligence Evaluation
+
+Implemented in `eq_bench.py`. Evaluates model ability to predict emotional intensities in dialogue scenarios.
+
+**Run EQ-Bench Evaluation**:
+```powershell
+.\.venv\Scripts\python.exe -u scripts\run_eq_bench.py --config config\example_config.json
+```
+
+**EQ-Bench Metrics**:
+- **Mean Absolute Error (MAE)**: Lower is better - measures accuracy of emotion intensity predictions (0-10 scale)
+- **Mean Correlation**: Higher is better - Pearson correlation between predicted and reference scores
+- **EQ-Bench Score**: Normalized 0-100 composite score
+
+**Expected Output Format**:
+| Model | EQ-Score | MAE | Correlation |
+|-------|----------|-----|-------------|
+| Base  | ~75-85   | ~2.0 | ~0.6 |
+| SFT   | ~80-90   | ~1.5 | ~0.7 |
+
+> **Note**: Actual scores depend on training run. SFT should show improved emotional intelligence due to empathy-focused training.
+
 > **DPO Note**: DPO (Direct Preference Optimization) was not implemented in this submission due to hardware constraints (4GB VRAM). The comparison is Base vs SFT only.
 
 ---
 
 ### 7.2 Ablations
 
-Two ablation configurations are provided to isolate the contribution of each auxiliary head:
+Three ablation configurations isolate the contribution of each auxiliary head, plus safety KL can be toggled:
 
-| Ablation               | Config File                        | λ_emo | λ_strat | λ_lm | Purpose                           |
-|------------------------|------------------------------------|-------|---------|------|-----------------------------------|
-| Remove Emotion Head    | `config/ablation_no_emotion.json`  | 0.0   | 0.2     | 1.0  | Isolate strategy head contribution |
-| Remove Strategy Head   | `config/ablation_no_strategy.json` | 0.2   | 0.0     | 1.0  | Isolate emotion head contribution  |
-| Full Multi-Objective   | `config/example_config.json`       | 0.2   | 0.2     | 1.0  | Baseline with both heads           |
+| Ablation               | Config File                        | λ_emo | λ_strat | λ_safe | λ_lm | Purpose                           |
+|------------------------|------------------------------------|-------|---------|--------|------|-----------------------------------|
+| Remove Emotion Head    | `config/ablation_no_emotion.json`  | 0.0   | 0.2     | 0.0    | 1.0  | Isolate strategy head contribution |
+| Remove Strategy Head   | `config/ablation_no_strategy.json` | 0.2   | 0.0     | 0.0    | 1.0  | Isolate emotion head contribution  |
+| Full Multi-Objective   | `config/example_config.json`       | 0.2   | 0.2     | 0.0    | 1.0  | Baseline with both heads           |
+| With Safety KL         | `config/safety_enabled.json`       | 0.2   | 0.2     | 0.1    | 1.0  | Add safety teacher distillation    |
 
 **Run Ablations**:
 ```powershell
 .\.venv\Scripts\python.exe -u scripts\run_train.py --config config\ablation_no_emotion.json
 .\.venv\Scripts\python.exe -u scripts\run_train.py --config config\ablation_no_strategy.json
+.\.venv\Scripts\python.exe -u scripts\run_train.py --config config\safety_enabled.json
 ```
 
-> **Safety KL / DPO Ablations**: Not implemented due to hardware constraints. These would require additional VRAM for reference model forward passes.
+> **Safety KL Note**: Self-distillation mode is used for 4GB VRAM GPUs. Full teacher mode requires 8GB+ VRAM. See `safety_teacher.py` for implementation details.
+>
+> **DPO Note**: DPO is implemented in config but not yet integrated into training loop due to VRAM constraints requiring a reference model.
 
 ---
 
@@ -398,7 +497,13 @@ Two ablation configurations are provided to isolate the contribution of each aux
 ### Key Files
 - Training script: `scripts/run_train.py`
 - Eval/export script: `scripts/run_eval.py`
+- EQ-Bench evaluation: `scripts/run_eq_bench.py`
 - Pipeline orchestrator: `scripts/run_pipeline.py`
+- Safety KL module: `safety_teacher.py`
+- Decoding policy (style tokens + two-step controller): `decoding_policy.py`
+- EQ-Bench benchmark: `eq_bench.py`
+- Auxiliary heads: `heads.py`
 - Config: `config/example_config.json`
+- Safety-enabled config: `config/safety_enabled.json`
 - Checkpoints: `artifacts/checkpoints/final/adapter/`
 - Eval artifacts: `artifacts/eval/run_20260129_d/`
