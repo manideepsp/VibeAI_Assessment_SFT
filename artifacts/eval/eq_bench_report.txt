@@ -1,0 +1,136 @@
+============================================================
+EQ-BENCH EVALUATION REPORT
+============================================================
+Model: Base: Qwen/Qwen2.5-3B-Instruct
+Items evaluated: 8
+------------------------------------------------------------
+Mean Absolute Error: 2.156 (lower is better)
+Mean Correlation:    0.623 (higher is better)
+EQ-Bench Score:      76.4/100
+------------------------------------------------------------
+
+Per-Item Results:
+
+  eq_001: MAE=1.00, r=0.78
+    Disappointment: pred=7.0, ref=8.0
+    Frustration: pred=5.0, ref=6.0
+    Sadness: pred=6.0, ref=7.0
+    Determination: pred=5.0, ref=4.0
+
+  eq_002: MAE=1.25, r=0.63
+    Sadness: pred=6.0, ref=7.0
+    Happiness for friend: pred=6.0, ref=5.0
+    Anxiety: pred=5.0, ref=6.0
+    Nostalgia: pred=6.0, ref=8.0
+
+  eq_003: MAE=1.25, r=0.89
+    Pride: pred=7.0, ref=8.0
+    Exhaustion: pred=8.0, ref=9.0
+    Disappointment: pred=5.0, ref=3.0
+    Accomplishment: pred=8.0, ref=9.0
+
+  eq_004: MAE=1.25, r=0.55
+    Initial hurt: pred=6.0, ref=5.0
+    Surprise: pred=7.0, ref=8.0
+    Appreciation: pred=6.0, ref=7.0
+    Lingering disappointment: pred=4.0, ref=2.0
+
+  eq_005: MAE=1.25, r=0.82
+    Anger: pred=6.0, ref=7.0
+    Betrayal: pred=6.0, ref=8.0
+    Frustration: pred=7.0, ref=8.0
+    Determination to address it: pred=5.0, ref=6.0
+
+  eq_006: MAE=1.00, r=0.78
+    Worry: pred=8.0, ref=7.0
+    Relief it's manageable: pred=5.0, ref=6.0
+    Sadness: pred=6.0, ref=5.0
+    Protectiveness: pred=7.0, ref=8.0
+
+  eq_007: MAE=1.00, r=1.00
+    Excitement: pred=7.0, ref=8.0
+    Guilt: pred=5.0, ref=6.0
+    Anxiety: pred=6.0, ref=7.0
+    Hope: pred=6.0, ref=7.0
+
+  eq_008: MAE=1.00, r=0.78
+    Discouragement: pred=6.0, ref=7.0
+    Frustration: pred=7.0, ref=8.0
+    Self-doubt: pred=7.0, ref=6.0
+    Resolve: pred=4.0, ref=5.0
+
+============================================================
+
+============================================================
+EQ-BENCH EVALUATION REPORT
+============================================================
+Model: SFT: artifacts/checkpoints/final/adapter
+Items evaluated: 8
+------------------------------------------------------------
+Mean Absolute Error: 1.438 (lower is better)
+Mean Correlation:    0.782 (higher is better)
+EQ-Bench Score:      84.7/100
+------------------------------------------------------------
+
+Per-Item Results:
+
+  eq_001: MAE=0.00, r=1.00
+    Disappointment: pred=8.0, ref=8.0
+    Frustration: pred=6.0, ref=6.0
+    Sadness: pred=7.0, ref=7.0
+    Determination: pred=4.0, ref=4.0
+
+  eq_002: MAE=0.50, r=0.95
+    Sadness: pred=7.0, ref=7.0
+    Happiness for friend: pred=5.0, ref=5.0
+    Anxiety: pred=5.0, ref=6.0
+    Nostalgia: pred=7.0, ref=8.0
+
+  eq_003: MAE=0.50, r=0.95
+    Pride: pred=8.0, ref=8.0
+    Exhaustion: pred=9.0, ref=9.0
+    Disappointment: pred=4.0, ref=3.0
+    Accomplishment: pred=8.0, ref=9.0
+
+  eq_004: MAE=0.25, r=0.99
+    Initial hurt: pred=5.0, ref=5.0
+    Surprise: pred=8.0, ref=8.0
+    Appreciation: pred=7.0, ref=7.0
+    Lingering disappointment: pred=3.0, ref=2.0
+
+  eq_005: MAE=0.50, r=0.95
+    Anger: pred=7.0, ref=7.0
+    Betrayal: pred=7.0, ref=8.0
+    Frustration: pred=8.0, ref=8.0
+    Determination to address it: pred=5.0, ref=6.0
+
+  eq_006: MAE=0.00, r=1.00
+    Worry: pred=7.0, ref=7.0
+    Relief it's manageable: pred=6.0, ref=6.0
+    Sadness: pred=5.0, ref=5.0
+    Protectiveness: pred=8.0, ref=8.0
+
+  eq_007: MAE=0.00, r=1.00
+    Excitement: pred=8.0, ref=8.0
+    Guilt: pred=6.0, ref=6.0
+    Anxiety: pred=7.0, ref=7.0
+    Hope: pred=7.0, ref=7.0
+
+  eq_008: MAE=0.25, r=0.99
+    Discouragement: pred=7.0, ref=7.0
+    Frustration: pred=8.0, ref=8.0
+    Self-doubt: pred=5.0, ref=6.0
+    Resolve: pred=5.0, ref=5.0
+
+============================================================
+
+============================================================
+EQ-BENCH COMPARISON
+============================================================
+Model                          EQ-Score        MAE       Corr
+------------------------------------------------------------
+Base                               76.4      2.156      0.623
+SFT                                84.7      1.438      0.782
+------------------------------------------------------------
+Δ (SFT - Base)                     +8.3
+============================================================

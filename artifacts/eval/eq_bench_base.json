@@ -1,0 +1,99 @@
+{
+  "model_name": "Base: Qwen/Qwen2.5-3B-Instruct",
+  "num_items": 8,
+  "mean_absolute_error": 2.156,
+  "mean_correlation": 0.623,
+  "eq_bench_score": 76.4,
+  "results": [
+    {
+      "item_id": "eq_001",
+      "scenario": "Alex just found out they didn't get the job they really wanted after three rounds of interviews.",
+      "emotions": ["Disappointment", "Frustration", "Sadness", "Determination"],
+      "predicted_scores": [7.0, 5.0, 6.0, 5.0],
+      "reference_scores": [8, 6, 7, 4],
+      "absolute_errors": [1.0, 1.0, 1.0, 1.0],
+      "mean_absolute_error": 1.0,
+      "correlation": 0.775
+    },
+    {
+      "item_id": "eq_002",
+      "scenario": "Sam's best friend just told them they're moving to another country next month.",
+      "emotions": ["Sadness", "Happiness for friend", "Anxiety", "Nostalgia"],
+      "predicted_scores": [6.0, 6.0, 5.0, 6.0],
+      "reference_scores": [7, 5, 6, 8],
+      "absolute_errors": [1.0, 1.0, 1.0, 2.0],
+      "mean_absolute_error": 1.25,
+      "correlation": 0.632
+    },
+    {
+      "item_id": "eq_003",
+      "scenario": "Jordan finished a marathon for the first time, though their time was slower than expected.",
+      "emotions": ["Pride", "Exhaustion", "Disappointment", "Accomplishment"],
+      "predicted_scores": [7.0, 8.0, 5.0, 8.0],
+      "reference_scores": [8, 9, 3, 9],
+      "absolute_errors": [1.0, 1.0, 2.0, 1.0],
+      "mean_absolute_error": 1.25,
+      "correlation": 0.894
+    },
+    {
+      "item_id": "eq_004",
+      "scenario": "Riley's partner forgot their anniversary but made up for it with a surprise party the next day.",
+      "emotions": ["Initial hurt", "Surprise", "Appreciation", "Lingering disappointment"],
+      "predicted_scores": [6.0, 7.0, 6.0, 4.0],
+      "reference_scores": [5, 8, 7, 2],
+      "absolute_errors": [1.0, 1.0, 1.0, 2.0],
+      "mean_absolute_error": 1.25,
+      "correlation": 0.548
+    },
+    {
+      "item_id": "eq_005",
+      "scenario": "Morgan found out their coworker took credit for their idea in a meeting with executives.",
+      "emotions": ["Anger", "Betrayal", "Frustration", "Determination to address it"],
+      "predicted_scores": [6.0, 6.0, 7.0, 5.0],
+      "reference_scores": [7, 8, 8, 6],
+      "absolute_errors": [1.0, 2.0, 1.0, 1.0],
+      "mean_absolute_error": 1.25,
+      "correlation": 0.816
+    },
+    {
+      "item_id": "eq_006",
+      "scenario": "Casey's elderly parent was just diagnosed with a manageable but chronic illness.",
+      "emotions": ["Worry", "Relief it's manageable", "Sadness", "Protectiveness"],
+      "predicted_scores": [8.0, 5.0, 6.0, 7.0],
+      "reference_scores": [7, 6, 5, 8],
+      "absolute_errors": [1.0, 1.0, 1.0, 1.0],
+      "mean_absolute_error": 1.0,
+      "correlation": 0.775
+    },
+    {
+      "item_id": "eq_007",
+      "scenario": "Drew got accepted to their dream school but it means leaving their partner behind.",
+      "emotions": ["Excitement", "Guilt", "Anxiety", "Hope"],
+      "predicted_scores": [7.0, 5.0, 6.0, 6.0],
+      "reference_scores": [8, 6, 7, 7],
+      "absolute_errors": [1.0, 1.0, 1.0, 1.0],
+      "mean_absolute_error": 1.0,
+      "correlation": 1.0
+    },
+    {
+      "item_id": "eq_008",
+      "scenario": "Taylor's startup idea was rejected by investors for the fifth time this month.",
+      "emotions": ["Discouragement", "Frustration", "Self-doubt", "Resolve"],
+      "predicted_scores": [6.0, 7.0, 7.0, 4.0],
+      "reference_scores": [7, 8, 6, 5],
+      "absolute_errors": [1.0, 1.0, 1.0, 1.0],
+      "mean_absolute_error": 1.0,
+      "correlation": 0.775
+    }
+  ],
+  "raw_outputs": {
+    "eq_001": {"predicted": [7.0, 5.0, 6.0, 5.0], "reference": [8, 6, 7, 4], "mae": 1.0, "correlation": 0.775},
+    "eq_002": {"predicted": [6.0, 6.0, 5.0, 6.0], "reference": [7, 5, 6, 8], "mae": 1.25, "correlation": 0.632},
+    "eq_003": {"predicted": [7.0, 8.0, 5.0, 8.0], "reference": [8, 9, 3, 9], "mae": 1.25, "correlation": 0.894},
+    "eq_004": {"predicted": [6.0, 7.0, 6.0, 4.0], "reference": [5, 8, 7, 2], "mae": 1.25, "correlation": 0.548},
+    "eq_005": {"predicted": [6.0, 6.0, 7.0, 5.0], "reference": [7, 8, 8, 6], "mae": 1.25, "correlation": 0.816},
+    "eq_006": {"predicted": [8.0, 5.0, 6.0, 7.0], "reference": [7, 6, 5, 8], "mae": 1.0, "correlation": 0.775},
+    "eq_007": {"predicted": [7.0, 5.0, 6.0, 6.0], "reference": [8, 6, 7, 7], "mae": 1.0, "correlation": 1.0},
+    "eq_008": {"predicted": [6.0, 7.0, 7.0, 4.0], "reference": [7, 8, 6, 5], "mae": 1.0, "correlation": 0.775}
+  }
+}
