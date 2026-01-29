@@ -68,6 +68,8 @@ Where:
 
 **VRAM Optimization**: Uses stochastic subset ratio (`teacher_subset_ratio: 0.05`) to apply KL on only 5% of batches, reducing memory pressure.
 
+> **Implementation Note**: The Safety KL regularization module (`safety_teacher.py`) is fully implemented and integrated into the training loop. However, it was **skipped during the actual training runs** due to limitations in compute resources (4GB VRAM) and time constraints. The implementation is ready for use on systems with adequate GPU memory (8GB+ recommended).
+
 ### Decoding Policy (Inference)
 
 Implemented in `decoding_policy.py`. Uses style tokens and a two-step controller:
